@@ -5,9 +5,9 @@
         <div class="carousel-inner">
           <div v-for="(item, index) in items" :key="index" :class="{ 'carousel-item': true, active: index === 0 }">
             <div class="row">
-              <div v-for="(letter, letterIndex) in ['a', 'b', 'c', 'd']" :key="letterIndex" class="col-md-6">
+              <div v-for="(letter, letterIndex) in ['a', 'b', 'c', 'd']" :key="letterIndex" class="col-md-6" @click="speakItem(items[(index * 4 + letterIndex) % items.length])">
                 <h3>{{ items[(index * 4 + letterIndex) % items.length].title }}</h3>
-                <p>{{ items[(index * 4 + letterIndex) % items.length].description }}</p>
+                <iconify-icon :icon="items[(index * 4 + letterIndex) % items.length].icon" :inline="false" height="50vh"/>
               </div>
             </div>
           </div>
@@ -28,22 +28,45 @@
 <script>
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import { Icon } from '@iconify/vue';
 
 export default {
   name: 'App',
+  components: {
+    IconifyIcon: Icon,
+  },
   data() {
     return {
       items: [
-        { title: 'Item 1', description: 'Description 1' },
-        { title: 'Item 2', description: 'Description 2' },
-        { title: 'Item 3', description: 'Description 3' },
-        { title: 'Item 4', description: 'Description 4' },
-        { title: 'Item 5', description: 'Description 5' },
-        { title: 'Item 6', description: 'Description 6' },
-        { title: 'Item 7', description: 'Description 7' },
-        { title: 'Item 8', description: 'Description 8' },
+        { title: 'Cow', icon: 'mdi:cow' },
+        { title: 'Fish', icon: 'mdi:fish' },
+        { title: 'Chicken', icon: 'fluent-emoji-high-contrast:chicken' },
+        { title: 'Tree', icon: 'mdi:tree' },
+        { title: 'Item 5', icon: 'mdi:text' },
+        { title: 'Item 6', icon: 'mdi:text' },
+        { title: 'Item 7', icon: 'mdi:text' },
+        { title: 'Item 8', icon: 'mdi:text' },
       ],
     };
+  },
+   methods: {
+    async speakItem(item) {
+      await this.speak(item.title);
+      for (const letter of item.title) {
+        await this.speak(letter);
+      }
+      await this.speak(item.title)
+    },
+
+    speak(text) {
+      return new Promise((resolve) => {
+        const synthesis = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.onend = resolve;
+        synthesis.speak(utterance);
+      });
+    },
   },
 };
 </script>
@@ -52,8 +75,6 @@ export default {
 #app {
   overflow: hidden;
   background-color: lightblue;
-  min-height:100vh;
+  min-height: 100vh;
 }
-
-
 </style>
